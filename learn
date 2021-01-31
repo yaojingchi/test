@@ -1,0 +1,102 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+int n;
+typedef struct student
+{
+    char num[20];
+    char name[25];
+    int score;
+}*Stu,StuNode;
+
+void Build(Stu stu)
+{
+    FILE *fp;
+    char name[20];
+    int score,i;
+    char num[20];
+    fp=fopen("E:\\Student.txt","w");
+    printf("请输入学生人数:");
+    scanf("%d",&n);
+
+    printf("请输入学生信息(学号，姓名，成绩)：\n");
+    for(i=1; i<=n; i++)
+    {
+        scanf("%s %s %d",num,name,&score);
+        fprintf(fp,"%s %s %d\n",num,name,score);
+    }
+    printf("登录成功.\n");
+    fclose(fp);
+}
+void ReadFile(Stu &stu)
+{
+    //读文件，存到Stu结构体中
+    FILE *fp;
+    int i;
+    stu=(Stu)malloc(sizeof(StuNode)*(n+1));
+    fp=fopen("E:\\Student.txt","r");
+    for(i=1; i<=n; i++)
+        fscanf(fp,"%s %s %d",stu[i].num,stu[i].name,&stu[i].score);
+
+    fclose(fp);
+}
+
+void Display(Stu stu)
+{
+    //显示数据
+    int i;
+    int temp=1,index=0;
+    for(i=1; i<=n; i++)
+    {
+        printf("%2d %15s %15s %5d\n",temp,stu[i].num,stu[i].name,stu[i].score);
+        if(i<n && stu[i].score==stu[i+1].score)
+            index++;
+        else
+        {
+            temp+=index+1;
+            index=0;
+        }
+    }
+
+    free(stu);
+}
+
+int Partition(Stu stu,int low,int high)
+{
+    //快速排序--排序
+    int Pi;
+    stu[0]=stu[low];
+
+    Pi=stu[0].score;
+    while(low<high)
+    {
+        while(low<high && stu[high].score<=Pi)
+            high--;
+        stu[low]=stu[high];
+        while(low<high && stu[low].score>=Pi)
+            low++;
+        stu[high]=stu[low];
+    }
+    stu[low]=stu[0];
+    return low;
+}
+void QuickSort(Stu stu,int low,int high)
+{
+    //快速排序--二分
+    int Pi;
+    if(low<high)
+    {
+        Pi=Partition(stu,low,high);
+        QuickSort(stu,low,Pi-1);
+        QuickSort(stu,Pi+1,high);
+    }
+}
+
+int main()
+{
+	        Stu stu;
+	        Build(stu);
+            ReadFile(stu);
+            QuickSort(stu,1,n);
+            Display(stu);
+}
